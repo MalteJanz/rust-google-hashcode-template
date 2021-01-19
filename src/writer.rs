@@ -12,16 +12,15 @@ pub fn write_data(data_context: DataContext, pizza_deliveries: Vec<PizzaDelivery
     // write other lines
     for pizza_delivery in pizza_deliveries {
         writer
-            .write_all(format!("{} ", pizza_delivery.team_size).as_bytes())
+            .write_all(pizza_delivery.team_size.to_string().as_bytes())
             .unwrap();
 
-        for pizza_id in &pizza_delivery.pizza_ids {
-            // todo: check if the last ' ' space at the end of the line is valid or must be removed.
-            writer
-                .write_all(format!("{} ", pizza_id).as_bytes())
-                .unwrap();
-        }
+        let ids_concatenated = pizza_delivery
+            .pizza_ids
+            .iter()
+            .fold(String::new(), |a, b| format!("{} {}", a, b));
 
+        writer.write_all(ids_concatenated.as_bytes()).unwrap();
         writer.write_all(b"\n").unwrap();
     }
 }
