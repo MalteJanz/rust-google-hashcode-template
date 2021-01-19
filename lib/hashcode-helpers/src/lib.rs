@@ -37,7 +37,7 @@ pub fn read_input_file(path: &str) -> (Vec<Vec<String>>, FileContext) {
     let line_values = reader
         .lines()
         .map(|l| l.expect("invalid line in input file."))
-        .map(|l| l.split_whitespace().map(|s| s.to_owned()).collect())
+        .map(|l| l.split_ascii_whitespace().map(|s| s.to_owned()).collect())
         .collect();
 
     let file_context = FileContext {
