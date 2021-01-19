@@ -51,16 +51,11 @@ pub fn read_input_file(path: &str) -> (Vec<Vec<String>>, FileContext) {
 /// Depends on the "zip" linux command. Other operating systems or systems that don't have "zip"
 /// installed may not work with this.
 pub fn create_submission_zip() {
-    let timestamp = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_secs();
-
-    println!("Zipping source files to output/source{}.zip", timestamp);
-
     Command::new("zip")
         .arg("-r")
-        .arg(format!("output/source{}.zip", timestamp))
+        .arg("-FS") //sync contents to file system (remove old files, add new file, override changes)
+        .arg("output/source.zip")
+        // add files / dirs to zip
         .arg("lib")
         .arg("src")
         .arg("Cargo.toml")

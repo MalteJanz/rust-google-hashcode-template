@@ -38,6 +38,7 @@ fn main() {
     let data_output = process_data(&mut data_context);
     write_data(data_context, data_output);
 
+    println!("Zipping source files to output/source.zip");
     create_submission_zip();
 }
 
