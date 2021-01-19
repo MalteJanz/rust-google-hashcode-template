@@ -2,9 +2,8 @@ use crate::reader::read_data;
 use crate::writer::write_data;
 use hashcode_helpers::{create_submission_zip, FileContext};
 
-mod writer;
 mod reader;
-
+mod writer;
 
 #[derive(Debug)]
 pub struct DataContext {
@@ -44,7 +43,10 @@ fn main() {
 
 fn process_data(data_context: &mut DataContext) -> Vec<PizzaDelivery> {
     for pizza in &data_context.pizzas {
-        println!("pizza: id={}, ingredient_coutn={} ingredients={:?}", pizza.id, pizza.ingredient_count, pizza.ingredients);
+        println!(
+            "pizza: id={}, ingredient_coutn={} ingredients={:?}",
+            pizza.id, pizza.ingredient_count, pizza.ingredients
+        );
     }
 
     // Todo: implement processing logic

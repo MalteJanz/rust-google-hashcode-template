@@ -1,7 +1,9 @@
-use std::fs::File;
-use std::io::{BufReader, BufRead, BufWriter};
-use std::path::{Path, PathBuf};
 use std::ffi::OsString;
+use std::fs::File;
+use std::io::{BufRead, BufReader, BufWriter};
+use std::path::{Path, PathBuf};
+use std::process::Command;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Default)]
 pub struct FileContext {
@@ -26,13 +28,17 @@ impl FileContext {
 /// Also returns a [FileContext] which can be used to keep track of the data name and write data back into a file.
 pub fn read_input_file(path: &str) -> (Vec<Vec<String>>, FileContext) {
     let path = Path::new(path);
-    let file_stem = path.file_stem().expect("can't get file name from input file path.");
+    let file_stem = path
+        .file_stem()
+        .expect("can't get file name from input file path.");
     let file = File::open(path).expect("can't read input file.");
     let reader = BufReader::new(file);
 
-    let line_values = reader.lines()
+    let line_values = reader
+        .lines()
         .map(|l| l.expect("invalid line in input file."))
-        .map(|l| l.split_whitespace().map(|s| s.to_owned()).collect()).collect();
+        .map(|l| l.split_whitespace().map(|s| s.to_owned()).collect())
+        .collect();
 
     let file_context = FileContext {
         name: file_stem.to_owned(),
@@ -41,8 +47,28 @@ pub fn read_input_file(path: &str) -> (Vec<Vec<String>>, FileContext) {
     (line_values, file_context)
 }
 
+/// Zips all source files, that can then be submitted to google hashcode.
+/// Depends on the "zip" linux command. Other operating systems or systems that don't have "zip"
+/// installed may not work with this.
 pub fn create_submission_zip() {
-    // Todo
+    let timestamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+
+    println!("Zipping source files to output/source{}.zip", timestamp);
+
+    Command::new("zip")
+        .arg("-r")
+        .arg(format!("output/source{}.zip", timestamp))
+        .arg("lib")
+        .arg("src")
+        .arg("Cargo.toml")
+        .arg("Cargo.lock")
+        .arg(".gitignore")
+        .arg("LICENSE")
+        .output()
+        .expect("failed to create zip file of source code");
 }
 
 #[cfg(test)]
