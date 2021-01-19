@@ -33,8 +33,8 @@ pub struct PizzaDelivery {
 fn main() {
     print_execution_time("main", || {
         println!("Starting hashcode worker");
-        let mut data_context = read_data("input/a_example");
-        let data_output = print_execution_time("process_data", || process_data(&mut data_context));
+        let data_context = read_data("input/a_example");
+        let data_output = print_execution_time("process_data", || process_data(&data_context));
         write_data(data_context, data_output);
 
         println!("Zipping source files to output/source.zip");
@@ -42,29 +42,36 @@ fn main() {
     });
 }
 
-fn process_data(data_context: &mut DataContext) -> Vec<PizzaDelivery> {
-    for pizza in &data_context.pizzas {
-        println!(
-            "pizza: id={}, ingredient_coutn={} ingredients={:?}",
-            pizza.id, pizza.ingredient_count, pizza.ingredients
-        );
-    }
+fn process_data(data_context: &DataContext) -> Vec<PizzaDelivery> {
+    let mut pizza_deliveries = Vec::new();
+    let mut pizza_iter = data_context.pizzas.iter().map(|pizza| pizza.id);
+    let pizza_iter = pizza_iter.by_ref();
 
-    // Todo: implement processing logic
-    let pizza_deliveries = vec![
-        PizzaDelivery {
-            team_size: 2,
-            pizza_ids: vec![0],
-        },
-        PizzaDelivery {
-            team_size: 3,
-            pizza_ids: vec![1, 2],
-        },
-        PizzaDelivery {
-            team_size: 3,
-            pizza_ids: vec![3, 4],
-        },
-    ];
+    // iterate over teamsize
+    for team_size in (2..5).rev() {
+        let number_of_teams = match team_size {
+            4 => data_context.team_of_four_count,
+            3 => data_context.team_of_three_count,
+            2 => data_context.team_of_two_count,
+            _ => {
+                return pizza_deliveries;
+            }
+        };
+
+        // iterate over each team for the given size
+        for _ in 0..number_of_teams {
+            let pizza_ids = pizza_iter.take(2).collect::<Vec<usize>>(); // try to give them two pizzas
+
+            if pizza_ids.is_empty() {
+                return pizza_deliveries;
+            }
+
+            pizza_deliveries.push(PizzaDelivery {
+                team_size,
+                pizza_ids,
+            });
+        }
+    }
 
     pizza_deliveries
 }
