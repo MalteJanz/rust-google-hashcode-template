@@ -3,7 +3,7 @@ use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter};
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::Instant;
 
 #[derive(Debug, Default)]
 pub struct FileContext {
@@ -18,8 +18,8 @@ impl FileContext {
         let mut path = PathBuf::from("output");
         path.push(&self.name);
         let file = File::create(path).expect("can't open file in output/... to write to.");
-        let writer = BufWriter::new(file);
-        writer
+
+        BufWriter::new(file)
     }
 }
 
@@ -64,6 +64,21 @@ pub fn create_submission_zip() {
         .arg("LICENSE")
         .output()
         .expect("failed to create zip file of source code");
+}
+
+/// Measures time of execution of the clousure and prints it with the given name to the CLI.
+/// returns from the closure are also returned from this function.
+pub fn print_execution_time<R, F>(name: &str, fnc: F) -> R
+where
+    F: FnOnce() -> R,
+{
+    println!("ExecutionTime[{}] Starting execution now...", name);
+    let now = Instant::now();
+    let return_value = fnc();
+    let elapsed = now.elapsed();
+    println!("ExecutionTime[{}] Elapsed: {:.2?}", name, elapsed);
+
+    return_value
 }
 
 #[cfg(test)]

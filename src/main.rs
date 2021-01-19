@@ -1,6 +1,6 @@
 use crate::reader::read_data;
 use crate::writer::write_data;
-use hashcode_helpers::{create_submission_zip, FileContext};
+use hashcode_helpers::{create_submission_zip, print_execution_time, FileContext};
 
 mod reader;
 mod writer;
@@ -31,15 +31,15 @@ pub struct PizzaDelivery {
 }
 
 fn main() {
-    println!("Starting hashcode worker");
+    print_execution_time("main", || {
+        println!("Starting hashcode worker");
+        let mut data_context = read_data("input/a_example");
+        let data_output = print_execution_time("process_data", || process_data(&mut data_context));
+        write_data(data_context, data_output);
 
-    let mut data_context = read_data("input/a_example");
-    println!("{:#?}", data_context);
-    let data_output = process_data(&mut data_context);
-    write_data(data_context, data_output);
-
-    println!("Zipping source files to output/source.zip");
-    create_submission_zip();
+        println!("Zipping source files to output/source.zip");
+        create_submission_zip();
+    });
 }
 
 fn process_data(data_context: &mut DataContext) -> Vec<PizzaDelivery> {
