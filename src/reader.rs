@@ -9,10 +9,14 @@ pub fn read_data(path: &str) -> DataContext {
 
     let pizzas = line_iter
         .enumerate()
-        .map(|(i, l)| Pizza {
-            id: i,
-            ingredient_count: l[0].parse().unwrap(),
-            ingredients: l.into_iter().skip(1).collect(),
+        .map(|(i, l)| {
+            let mut value_iter = l.into_iter();
+
+            Pizza {
+                id: i,
+                ingredient_count: value_iter.next().unwrap().parse().unwrap(),
+                ingredients: value_iter.collect(),
+            }
         })
         .collect();
 
