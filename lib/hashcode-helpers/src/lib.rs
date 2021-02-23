@@ -72,11 +72,11 @@ pub fn print_execution_time<R, F>(name: &str, fnc: F) -> R
 where
     F: FnOnce() -> R,
 {
-    println!("ExecutionTime[{}] Starting execution now...", name);
+    println!("+++ExecutionTime[{}] Starting execution now...", name);
     let now = Instant::now();
     let return_value = fnc();
     let elapsed = now.elapsed();
-    println!("ExecutionTime[{}] Elapsed: {:.2?}", name, elapsed);
+    println!("---ExecutionTime[{}] Elapsed: {:.2?}", name, elapsed);
 
     return_value
 }

@@ -1,6 +1,7 @@
 use crate::reader::read_data;
 use crate::writer::write_data;
 use hashcode_helpers::{create_submission_zip, print_execution_time, FileContext};
+use rayon::prelude::*;
 
 mod reader;
 mod writer;
@@ -14,19 +15,24 @@ pub struct DataContext {
 fn main() {
     println!("Start working on hashcode problem...");
 
-    let input_files = vec![
-        "input/a_example",
-        //"input/...",
-    ];
+    print_execution_time("main", || {
+        let input_files = vec![
+            "input/a_example",
+            //"input/...",
+        ];
 
-    for file_path in input_files {
-        let data_context = read_data(file_path);
-        let data_output = process_data(&data_context);
-        write_data(data_context /*, data_output*/);
-    }
+        input_files.into_par_iter().for_each(|file_path| {
+            // process each file in parallel
+            print_execution_time(file_path, || {
+                let data_context = read_data(file_path);
+                let data_output = process_data(&data_context);
+                write_data(data_context /*, data_output*/);
+            });
+        });
 
-    println!("Zipping source files to output/source.zip");
-    create_submission_zip();
+        println!("Zipping source files to output/source.zip");
+        print_execution_time("zipping", create_submission_zip);
+    });
 }
 
 pub fn process_data(data_context: &DataContext) /* -> OutputData */
