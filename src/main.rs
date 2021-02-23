@@ -12,11 +12,24 @@ pub struct DataContext {
 }
 
 fn main() {
-    println!("Starting hashcode worker");
-    let data_context = read_data("input/a_example");
-    //let data_output = process_data(&data_context);
-    write_data(data_context/*, data_output*/);
+    println!("Start working on hashcode problem...");
+
+    let input_files = vec![
+        "input/a_example",
+        //"input/...",
+    ];
+
+    for file_path in input_files {
+        let data_context = read_data(file_path);
+        let data_output = process_data(&data_context);
+        write_data(data_context /*, data_output*/);
+    }
 
     println!("Zipping source files to output/source.zip");
     create_submission_zip();
+}
+
+pub fn process_data(data_context: &DataContext) /* -> OutputData */
+{
+    // ...
 }

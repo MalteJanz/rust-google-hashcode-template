@@ -1,4 +1,4 @@
-use crate::{DataContext};
+use crate::DataContext;
 use hashcode_helpers::read_input_file;
 
 pub fn read_data(path: &str) -> DataContext {

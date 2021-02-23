@@ -24,7 +24,7 @@ impl FileContext {
 }
 
 /// reads an input file and converts it into a list of lines
-/// (each is also a list of Strings, that were splitted by whitespace in each line).
+/// (each is also a list of Strings, that were split by whitespace in each line).
 /// Also returns a [FileContext] which can be used to keep track of the data name and write data back into a file.
 pub fn read_input_file(path: &str) -> (Vec<Vec<String>>, FileContext) {
     let path = Path::new(path);
@@ -79,12 +79,4 @@ where
     println!("ExecutionTime[{}] Elapsed: {:.2?}", name, elapsed);
 
     return_value
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
 }
