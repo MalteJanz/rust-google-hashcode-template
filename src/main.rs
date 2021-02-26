@@ -152,9 +152,23 @@ pub fn process_data(data_context: &DataContext)  -> OutputContext
 
             schedules.push(StreetSchedule {
                 street_name: street.name.clone(),
-                green_time: min(data_context.simulation_time, street_traffic_sum),
+
+                // very good for datasets A, B, D
+                //green_time: max(1, (street_traffic_sum as f64 / data_context.simulation_time as f64) as usize),
+
+                // very good for dataset C, F!
                 //green_time: min(data_context.simulation_time, max(1, f64::ceil(traffic_light_used_factor * incoming_streets.len() as f64) as usize)),
-                intersection_visitor_factor: street_traffic_sum as f64,
+
+                // best result for dataset F! + Overall best
+                green_time: min(data_context.simulation_time, max(1, (traffic_light_used_factor * 10.0) as usize)),
+
+                // best result for dataset E!
+                //green_time: min(data_context.simulation_time, max(1, f64::ceil(traffic_light_used_factor * incoming_streets.len() as f64) as usize)),
+
+                // best result for dataset A (only 1k increase)
+                //green_time: min(data_context.simulation_time, max(1, incoming_streets.len())),
+
+                intersection_visitor_factor: traffic_light_used_factor as f64,
             });
         }
 
