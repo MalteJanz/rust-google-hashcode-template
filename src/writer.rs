@@ -4,12 +4,12 @@ use std::io::Write;
 pub fn write_data(data_context: DataContext, output_context: OutputContext) {
     let mut writer = data_context.file_context.create_writer();
 
-    // write first line
-
+    // first line
     writer
         .write_all(format!("{}\n", output_context.intersect_schedule_count).as_bytes())
         .unwrap();
 
+    // other lines
     for intersection in output_context.intersect_schedule {
         writer
             .write_all(format!("{}\n", intersection.id).as_bytes())
@@ -25,5 +25,4 @@ pub fn write_data(data_context: DataContext, output_context: OutputContext) {
                 .unwrap();
         }
     }
-
 }

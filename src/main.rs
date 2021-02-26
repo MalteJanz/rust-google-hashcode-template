@@ -2,8 +2,8 @@ use crate::reader::read_data;
 use crate::writer::write_data;
 use hashcode_helpers::{create_submission_zip, print_execution_time, FileContext};
 use rayon::prelude::*;
-use std::collections::{HashMap, HashSet};
 use std::cmp::{max, min};
+use std::collections::HashMap;
 
 mod reader;
 mod writer;
@@ -56,7 +56,6 @@ pub struct StreetSchedule {
     pub intersection_visitor_factor: f64,
 }
 
-
 fn main() {
     println!("Start working on hashcode problem...");
 
@@ -85,50 +84,33 @@ fn main() {
     });
 }
 
-pub fn process_data(data_context: &DataContext)  -> OutputContext
-{
-    // incoming streets into the intersection
+pub fn process_data(data_context: &DataContext) -> OutputContext {
+    // intersection id with incoming streets into the intersection
     let mut intersections: HashMap<usize, Vec<&Street>> = HashMap::new();
+    // street name lookup table
     let mut streets: HashMap<String, &Street> = HashMap::new();
 
     for street in &data_context.streets {
-        intersections.entry(street.end_intersection).or_insert(Vec::new()).push(street);
+        intersections
+            .entry(street.end_intersection)
+            .or_insert_with(Vec::new)
+            .push(street);
         streets.insert(street.name.clone(), street);
     }
 
-    // filter out intersections which no cars are visiting
-    /*
-    let mut intersections_filtered: HashMap<usize, Vec<&Street>> = HashMap::new();
-    for car in &data_context.cars {
-        for street_name in &car.street_names {
-            let street = streets.get(street_name).expect("street not found");
-            street.
-        }
-    }*/
-
     // count the streets in the car paths
     let mut used_streets: HashMap<String, usize> = HashMap::new();
-
     for car in &data_context.cars {
         for street_name in &car.street_names {
             *used_streets.entry(street_name.clone()).or_insert(0) += 1;
         }
     }
 
-    //println!("{:#?}", used_streets);
-
-
     let mut intersection_schedules = Vec::new();
-
     for (intersection_id, incoming_streets) in &intersections {
-
         let mut visitor_sum = 0;
         for street in incoming_streets {
-            if !used_streets.contains_key(&street.name) {
-                continue;
-            }
-
-            visitor_sum += used_streets.get(&street.name).expect("street not found");
+            visitor_sum += used_streets.get(&street.name).unwrap_or(&0);
         }
 
         //println!("Kreuzung {:?} visitorSum= {:?}", intersection_id, visitor_sum);
@@ -139,11 +121,7 @@ pub fn process_data(data_context: &DataContext)  -> OutputContext
                 continue;
             }
 
-            let mut street_traffic_sum = 0;
-            if used_streets.contains_key(&street.name) {
-                street_traffic_sum = *used_streets.get(&street.name).expect("street not found");
-            }
-
+            let street_traffic_sum = *used_streets.get(&street.name).expect("street not found");
             // 1 <- all traffic drives through this one street
             // 0 <- no traffic
             let traffic_light_used_factor = street_traffic_sum as f64 / visitor_sum as f64;
@@ -160,14 +138,16 @@ pub fn process_data(data_context: &DataContext)  -> OutputContext
                 //green_time: min(data_context.simulation_time, max(1, f64::ceil(traffic_light_used_factor * incoming_streets.len() as f64) as usize)),
 
                 // best result for dataset F! + Overall best
-                green_time: min(data_context.simulation_time, max(1, (traffic_light_used_factor * 10.0) as usize)),
+                green_time: min(
+                    data_context.simulation_time,
+                    max(1, (traffic_light_used_factor * 10.0) as usize),
+                ),
 
                 // best result for dataset E!
                 //green_time: min(data_context.simulation_time, max(1, f64::ceil(traffic_light_used_factor * incoming_streets.len() as f64) as usize)),
 
                 // best result for dataset A (only 1k increase)
                 //green_time: min(data_context.simulation_time, max(1, incoming_streets.len())),
-
                 intersection_visitor_factor: traffic_light_used_factor as f64,
             });
         }
@@ -176,15 +156,18 @@ pub fn process_data(data_context: &DataContext)  -> OutputContext
             continue;
         }
 
-
         schedules.sort_by(|schedule_a, schedule_b| {
-            schedule_a.intersection_visitor_factor.partial_cmp(&schedule_b.intersection_visitor_factor).expect("not a number sorting")
+            schedule_a
+                .intersection_visitor_factor
+                .partial_cmp(&schedule_b.intersection_visitor_factor)
+                .expect("not a number sorting")
         });
 
         /*
         if schedules.iter().any(|schedule| schedule.intersection_visitor_factor > 0.9) {
             schedules = schedules.into_iter().filter(|schedule| schedule.intersection_visitor_factor >= 0.9).collect();
-        }*/
+        }
+        */
 
         intersection_schedules.push(IntersectSchedule {
             id: *intersection_id,
