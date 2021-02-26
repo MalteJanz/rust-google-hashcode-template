@@ -1,3 +1,5 @@
+mod hash_code_api;
+
 use std::ffi::OsString;
 use std::fs::File;
 use std::io::{BufRead, BufReader, BufWriter};
